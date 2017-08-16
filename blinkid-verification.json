@@ -1,0 +1,20 @@
+{
+  "_t": "tradle.Verification",
+  "_z": "x5HualVTaL/6U42ruH/6mv2SM3sVd8N4jlOmA9EGx1E=",
+  "dateVerified": 1389765328726,
+  "method": {
+    "_t": "tradle.APIBasedVerificationMethod",
+    "api": {
+      "_t": "tradle.API",
+      "name": "Onfido",
+      "provider": {
+        "title": "Onfido",
+        "id": "tradle.Organization_67fe8518d3dc1e3a8d5d845b61911f00e5a72594d8f85af369122bcadacde3db"
+      }
+    },
+    "rawData": {
+      "version": "2.9.1"
+    },
+    "aspect": "ocr"
+  }
+}

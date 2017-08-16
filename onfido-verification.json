@@ -1,0 +1,186 @@
+{
+  "_t": "tradle.Verification",
+  "_z": "x5HualVTaL/6U42ruH/6mv2SM3sVd8N4jlOmA9EGx1E=",
+  "dateVerified": 1389765328726,
+  "method": {
+    "_t": "tradle.APIBasedVerificationMethod",
+    "api": {
+      "_t": "tradle.API",
+      "name": "onfido",
+      "provider": {
+        "id": "tradle.Organization_57f54fd7a5dd777a541ca994f3155aaecd656bc05ac52e6163a2311d2d4b8b87_57f54fd7a5dd777a541ca994f3155aaecd656bc05ac52e6163a2311d2d4b8b87",
+        "title": "Onfido"
+      }
+    },
+    "reference": [
+      {
+        "queryId": "report:439d0381-fa48-4f08-a348-7d0294386317"
+      }
+    ],
+    "aspect": "authenticity",
+    "rawData": {
+      "created_at": "2017-01-10T09:35:55Z",
+      "href": "/v2/checks/ef4eaadc-e791-4f53-b3ce-9fe3ba5eced3/reports/439d0381-fa48-4f08-a348-7d0294386317",
+      "id": "439d0381-fa48-4f08-a348-7d0294386317",
+      "name": "document",
+      "properties": {
+        "first_name": "John",
+        "last_name": "Smith",
+        "gender": "Male",
+        "nationality": "GBR",
+        "document_type": "passport",
+        "document_numbers": [
+          {
+            "type": "passport",
+            "value": "5119422666"
+          }
+        ],
+        "issuing_country": "GBR",
+        "date_of_birth": "1900-01-01",
+        "date_of_expiry": "1900-01-01"
+      },
+      "result": "clear",
+      "status": "complete",
+      "variant": "standard",
+      "breakdown": {
+        "data_comparison": {
+          "result": "clear",
+          "breakdown": {
+            "date_of_expiry": {
+              "result": "clear",
+              "properties": {}
+            },
+            "issuing_country": {
+              "result": "clear",
+              "properties": {}
+            },
+            "document_type": {
+              "result": "clear",
+              "properties": {}
+            },
+            "document_numbers": {
+              "result": "clear",
+              "properties": {}
+            },
+            "gender": {
+              "result": "clear",
+              "properties": {}
+            },
+            "date_of_birth": {
+              "result": "clear",
+              "properties": {}
+            },
+            "last_name": {
+              "result": "clear",
+              "properties": {}
+            },
+            "first_name": {
+              "result": "clear",
+              "properties": {}
+            }
+          }
+        },
+        "data_consistency": {
+          "result": "clear",
+          "breakdown": {
+            "date_of_birth": {
+              "result": "clear",
+              "properties": {}
+            },
+            "date_of_expiry": {
+              "result": "clear",
+              "properties": {}
+            },
+            "document_type": {
+              "result": "clear",
+              "properties": {}
+            },
+            "nationality": {
+              "result": null,
+              "properties": {}
+            },
+            "issuing_country": {
+              "result": "clear",
+              "properties": {}
+            },
+            "document_numbers": {
+              "result": "clear",
+              "properties": {}
+            },
+            "gender": {
+              "result": null,
+              "properties": {}
+            },
+            "last_name": {
+              "result": "clear",
+              "properties": {}
+            },
+            "first_name": {
+              "result": "clear",
+              "properties": {}
+            }
+          }
+        },
+        "data_validation": {
+          "result": "clear",
+          "breakdown": {
+            "gender": {
+              "result": "clear",
+              "properties": {}
+            },
+            "document_expiration": {
+              "result": "clear",
+              "properties": {}
+            },
+            "document_numbers": {
+              "result": "clear",
+              "properties": {}
+            },
+            "expiry_date": {
+              "result": "clear",
+              "properties": {}
+            },
+            "date_of_birth": {
+              "result": "clear",
+              "properties": {}
+            },
+            "mrz": {
+              "result": "clear",
+              "properties": {}
+            }
+          }
+        },
+        "visual_authenticity": {
+          "result": "clear",
+          "breakdown": {
+            "other": {
+              "result": "clear",
+              "properties": {}
+            },
+            "face_detection": {
+              "result": "clear",
+              "properties": {}
+            }
+          }
+        },
+        "image_integrity": {
+          "result": "clear",
+          "breakdown": {
+            "supported_document": {
+              "result": "clear",
+              "properties": {}
+            },
+            "image_quality": {
+              "result": "clear",
+              "properties": {}
+            }
+          }
+        },
+        "police_record": {
+          "result": "clear"
+        }
+      }
+    },
+    "confidence": 1
+  }
+}

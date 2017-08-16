@@ -1,0 +1,11 @@
+{
+  "_t": "tradle.Verification",
+  "_z": "x5HualVTaL/6U42ruH/6mv2SM3sVd8N4jlOmA9EGx1E=",
+  "dateVerified": 1455307328786,
+  "method": {
+    "_t": "tradle.VisualVerificationMethod",
+    "aspect": "presence",
+    "documentPresence": "physical",
+    "ownerPresence": "physical"
+  }
+}

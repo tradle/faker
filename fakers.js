@@ -1,5 +1,9 @@
 const crypto = require('crypto')
 const shallowClone = require('xtend')
+// const currencies = require('@tradle/models')
+//   .models['tradle.Money']
+//   .properties.currency.oneOf
+
 // const authors = new Array(100).fill(0).map(hash)
 
 module.exports = {
@@ -7,11 +11,9 @@ module.exports = {
   hash,
   // author: () => randomEl(authors)
   ref,
-  tradleModelId: id => {
-    if (id === 'tradle.Phone') debugger
-    return id
-  },
-  sigPubKey: () => crypto.randomBytes(32).toString('hex')
+  tradleModelId: id => id,
+  sigPubKey: () => crypto.randomBytes(32).toString('hex'),
+  currency: () => '€'
 }
 
 function hash () {

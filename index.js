@@ -1,5 +1,6 @@
 
 // const debug = require('debug')(require('./package.json').name)
+const crypto = require('crypto')
 const traverse = require('traverse')
 const uniq = require('uniq')
 const jsf = require('json-schema-faker')
@@ -8,14 +9,16 @@ const extend = require('xtend/mutable')
 const shallowClone = require('xtend')
 const clone = require('clone')
 const pick = require('object.pick')
+const shuffle = require('array-shuffle')
 const validateResource = require('@tradle/validate-resource')
 const { getRef, isInlinedProperty, setVirtual } = validateResource.utils
 const mergeModels = require('@tradle/merge-models')
 const baseModels = require('@tradle/models').models
 const customModels = require('@tradle/custom-models')
+const Verifier = require('./verifier')
 const customFakers = require('./fakers')
 const BaseObjectModel = baseModels['tradle.Object']
-const TYPE = '_t'
+const { TYPE } = require('@tradle/constants')
 
 module.exports = Samples
 
@@ -25,19 +28,29 @@ jsf.extend('faker', function () {
   return faker
 })
 
-function Samples ({ models={} }) {
-  this.models = mergeModels()
+function Samples ({ models={}, products }) {
+  this.organization = crypto.randomBytes(32).toString('hex')
+  this.models = models = mergeModels()
     .add(baseModels)
     .add(customModels)
     .add(models)
     .get()
 
+  this.products = products || shuffle(Object.keys(models))
+    .filter(id => {
+      const model = models[id]
+      return id !== 'tradle.Remediation' &&
+        model.subClassOf === 'tradle.FinancialProduct' &&
+        model.forms.length
+    })
+    .slice(0, 6)
+
   this.schemas = {}
-  for (let id in this.models) {
-    let model = this.models[id]
+  for (let id in models) {
+    let model = models[id]
     normalizeModel(model)
     this.schemas[id] = toJSONSchema({
-      models: this.models,
+      models,
       model,
       schemas: this.schemas
     })
@@ -46,7 +59,20 @@ function Samples ({ models={} }) {
 
 Samples.prototype.one = function ({ model, author }) {
   const { schemas, models } = this
+  if (typeof model === 'string') {
+    model = models[model]
+  }
+
   const sample = jsf(schemas[model.id])
+  delete sample._p
+  delete sample._r
+  if (model.subClassOf === 'tradle.MyProduct' ||
+      model.id === 'tradle.Confirmation' ||
+      model.id === 'tradle.ApplicationSubmitted' ||
+      model.id === 'tradle.ApplicationDenial') {
+    delete sample.forms
+  }
+
   // delete sample._virtual
 
   const virtual = {
@@ -78,23 +104,102 @@ Samples.prototype.one = function ({ model, author }) {
   return sample
 }
 
-Samples.prototype.user = function ({ user, types }) {
+Samples.prototype.application = function ({ author, product }) {
   const { models } = this
-  if (!user) user = customFakers.hash()
-
+  const productModel = models[product]
+  const forms = productModel.forms.concat(productModel.additionalForms || [])
   const samples = []
-  Object.keys(types).forEach(id => {
-    let model = models[id]
-    if (!model) throw new Error(`model ${id} not found`)
+  const app = this.one({
+    model: models['tradle.ProductApplication'],
+    author
+  })
 
-    repeat(types[id], () => {
-      const sample = this.one({ model, author: user })
-      validateResource({ models, model, resource: sample })
-      samples.push(sample)
-    })
+  app.product = product
+  samples.push(app)
+
+  for (let form of forms) {
+    const model = models[form]
+    const sample = this.one({ model, author })
+    samples.push(sample)
+    samples.push(this.verification({
+      forResource: sample
+    }))
+  }
+
+  samples.push(this.one({
+    model: models['tradle.ApplicationSubmitted'],
+    author: this.organization
+  }))
+
+  const myProductModel = models[product.replace('.', 'My.')]
+  if (Math.random() < 0.5) {
+    if (myProductModel) {
+      samples.push(this.one({
+        model: myProductModel,
+        author: this.organization
+      }))
+    } else {
+      samples.push(this.one({
+        model: 'tradle.Confirmation',
+        author: this.organization
+      }))
+    }
+  } else {
+    samples.push(this.one({
+      model: models['tradle.ApplicationDenial'],
+      author: this.organization
+    }))
+  }
+
+  samples.forEach(resource => {
+    const model = models[resource[TYPE]]
+    validateResource({ models, model, resource })
   })
 
   return samples
+}
+
+Samples.prototype.verification = function ({ forResource }) {
+  const { models } = this
+  const author = this.organization
+  if (forResource[TYPE] === 'tradle.PhotoID') {
+    if (Math.random() < 0.5) {
+      return Verifier.onfido({ models, forResource, author })
+    }
+
+    return Verifier.visual({ models, forResource, author })
+  }
+
+  return Verifier.regular({ models, forResource, author })
+}
+
+Samples.prototype.user = function ({ author, types }) {
+  const { models } = this
+  if (!author) author = customFakers.hash()
+
+  let samples = []
+  const products = this.products.slice()
+  for (let i = 0; i < 3; i++) {
+    let product = randomElement(products)
+    samples = samples.concat(this.application({ author, product }))
+    products.splice(products.indexOf(product), 0)
+  }
+
+  return samples
+
+  // const samples = []
+  // Object.keys(types).forEach(id => {
+  //   let model = models[id]
+  //   if (!model) throw new Error(`model ${id} not found`)
+
+  //   repeat(types[id], () => {
+  //     const sample = this.one({ model, author })
+  //     validateResource({ models, model, resource: sample })
+  //     samples.push(sample)
+  //   })
+  // })
+
+  // return samples
 }
 
 function normalizeModel (model) {
@@ -211,8 +316,6 @@ function _toJSONSchema ({ model, models, schemas }) {
     }
   })
 
-  if (id === 'tradle.BasicContactInfo')
-  console.log(schema)
   return schema
 }
 
@@ -258,4 +361,8 @@ function repeat (n, fn) {
 function defaultExtension (faker) {
   faker.locale = 'en'
   extend(faker, customFakers)
+}
+
+function randomElement (arr) {
+  return arr[arr.length * Math.random() | 0]
 }

@@ -5,7 +5,8 @@ module.exports = {
   users: 2,
   types: {
     'tradle.BasicContactInfo': 10,
-    // 'tradle.CVItem': 1,
+    'tradle.CVItem': 1,
     'tradle.PhotoID': 5,
+    'tradle.Selfie': 1
   }
 }
