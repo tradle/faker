@@ -67,7 +67,10 @@ function createBaseVerification ({ models, forResource, author }) {
     dateVerified: Date.now() - Math.floor(10 * Math.random()) * YEAR_MILLIS
   }
 
+  const link = crypto.randomBytes(32).toString('hex')
   setVirtual(verification, {
+    _link: link,
+    _permalink: link,
     _author: author
   })
 

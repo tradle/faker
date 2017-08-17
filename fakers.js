@@ -1,5 +1,7 @@
 const crypto = require('crypto')
 const shallowClone = require('xtend')
+const faker = require('faker')
+const YEAR_MILLIS = 365 * 24 * 3600 * 1000
 // const currencies = require('@tradle/models')
 //   .models['tradle.Money']
 //   .properties.currency.oneOf
@@ -13,7 +15,19 @@ module.exports = {
   ref,
   tradleModelId: id => id,
   sigPubKey: () => crypto.randomBytes(32).toString('hex'),
-  currency: () => '€'
+  currency: () => '€',
+  _virtual: () => ['_link', '_permalink', '_author'],
+  timestamp: () => Date.now() - Math.floor(Math.random() * 10 * YEAR_MILLIS),
+  ssn: () => {
+    const area = faker.random.number({ min: 100, max: 665 })
+    const group = faker.random.number({ min: 10, max: 99 })
+    const serial = faker.random.number({ min: 1000, max: 9900 })
+    return `${area}-${group}-${serial}`
+  }
+}
+
+function ssn () {
+  return
 }
 
 function hash () {

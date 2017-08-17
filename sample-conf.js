@@ -3,10 +3,10 @@ module.exports = {
   extension: './sample-extension.js',
   // models: './path/to/more/models.js',
   users: 2,
-  types: {
-    'tradle.BasicContactInfo': 10,
-    'tradle.CVItem': 1,
-    'tradle.PhotoID': 5,
-    'tradle.Selfie': 1
-  }
+  // types: {
+  //   'tradle.BasicContactInfo': 10,
+  //   'tradle.CVItem': 1,
+  //   'tradle.PhotoID': 5,
+  //   'tradle.Selfie': 1
+  // }
 }

@@ -4,7 +4,6 @@ const fs = require('fs')
 const path = require('path')
 const clone = require('clone')
 const faker = require('faker')
-const jsf = require('json-schema-faker')
 const typeforce = require('typeforce')
 const traverse = require('traverse')
 const uniq = require('uniq')
@@ -17,9 +16,9 @@ const mergeModels = require('@tradle/merge-models')
 const baseModels = toObject(require('@tradle/models').models)
 const customModels = require('@tradle/custom-models')
 const customFakers = require('./fakers')
-const Gen = require('./')
+const Gen = require('./').samples
 const BaseObjectModel = baseModels['tradle.Object']
-const TYPE = '_t'
+const { TYPE } = require('@tradle/constants')
 const SCHEMAS = {}
 const conf = require(path.resolve(process.argv[2]))
 
@@ -29,7 +28,7 @@ function run (conf) {
   typeforce({
     output: typeforce.String,
     users: typeforce.Number,
-    types: typeforce.Object,
+    // types: typeforce.Object,
     extension: typeforce.maybe('String'),
     models: typeforce.maybe(typeforce.oneOf('String', 'Object', 'Array')),
   }, conf)
@@ -44,25 +43,13 @@ function run (conf) {
     extension(faker)
   }
 
-  // jsf.extend('faker', function () {
-  //   const faker = require('faker')
-  //   defaultExtension(faker)
-  //   if (conf.extension) {
-  //     const extension = require(path.resolve(conf.extension))
-  //     extension(faker)
-  //   }
-
-  //   return faker
-  // })
-
   const gen = new Gen({
     models: conf.models || {}
   })
 
-  const { users, types } = conf
+  const { users } = conf
   const samples = new Array(users).fill(0).reduce((samples) => {
-    // const next = genSamplesForOneUser({ models, types })
-    const next = gen.user({ types })
+    const next = gen.user()
     return samples.concat(next)
   }, [])
 
