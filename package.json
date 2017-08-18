@@ -12,7 +12,7 @@
   "dependencies": {
     "@tradle/build-resource": "tradle/build-resource",
     "@tradle/constants": "^2.1.0",
-    "@tradle/custom-models": "file:../custom-models",
+    "@tradle/custom-models": "https://github.com/tradle/custom-models",
     "@tradle/engine": "^4.10.0",
     "@tradle/merge-models": "tradle/merge-models",
     "@tradle/models": "https://github.com/tradle/models",
