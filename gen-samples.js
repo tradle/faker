@@ -229,7 +229,7 @@ function normalizeModel ({ models, model }) {
     }
 
     const ref = getRef(property)
-    if (!ref) return console.log('locally defined', id, name)
+    if (!ref) return // console.log('locally defined', id, name)
 
     if (isInlinedProperty({ property, models })) {
       if (ref === 'tradle.Model') {
