@@ -10,6 +10,7 @@ const clone = require('clone')
 const pick = require('object.pick')
 const shuffle = require('array-shuffle')
 const validateResource = require('@tradle/validate-resource')
+const buildResource = require('@tradle/build-resource')
 const { getRef, isInlinedProperty, setVirtual } = validateResource.utils
 const mergeModels = require('@tradle/merge-models')
 const baseModels = require('@tradle/models').models
@@ -35,17 +36,7 @@ function Samples ({
     .add(models)
     .get()
 
-  this.products = products || shuffle(Object.keys(models))
-    .filter(id => {
-      const { properties, subClassOf, forms } = models[id]
-      return id !== 'tradle.Remediation' &&
-        subClassOf === 'tradle.FinancialProduct' &&
-        forms.length &&
-        forms.some(form => {
-          const formProps = models[form].properties
-          return Object.keys(formProps).some(prop => formProps[prop].faker)
-        })
-    })
+  this.products = products || getProducts(models)
 
   debug(`found ${this.products.length} products`)
 
@@ -67,17 +58,18 @@ Samples.prototype.one = function ({ model, author }) {
     signed: true
   })
 
+  const { value } = sample
   const virtual = {
-    _link: sample._link,
-    _permalink: sample._link,
+    _link: value._link,
+    _permalink: value._link,
     _author: author
   }
 
-  setVirtual(sample, virtual)
+  setVirtual(value, virtual)
   validateResource({
     models,
     model,
-    resource: sample
+    resource: value
   })
 
   return sample
@@ -87,48 +79,66 @@ Samples.prototype.application = function ({ author, product }) {
   const { models } = this
   const productModel = models[product]
   const forms = productModel.forms.concat(productModel.additionalForms || [])
-  const samples = []
   const app = this.one({
     model: models['tradle.ProductApplication'],
     author
   })
 
   app.product = product
-  samples.push(app)
 
-  for (let form of forms) {
+  const formResources = forms.map(form => {
     const model = models[form]
-    const sample = this.one({ model, author })
-    samples.push(sample)
-    samples.push(this.verification({
-      forResource: sample
-    }))
-  }
+    return this.one({ model, author })
+  })
 
-  samples.push(this.one({
+  const verifications = formResources.map(res => {
+    return this.verification({ forResource: res.value })
+  })
+
+  const formStubs = formResources.map(res => {
+    return buildResource.stub({ models, resource: res.value })
+  })
+
+  const submitted = this.one({
     model: models['tradle.ApplicationSubmitted'],
     author: this.organization
-  }))
+  })
+
+  submitted.value.forms = formStubs
 
   const myProductModel = models[product.replace('.', 'My.')]
+  let judgement
   if (Math.random() < 0.5) {
     if (myProductModel) {
-      samples.push(this.one({
+      judgement = this.one({
         model: myProductModel,
         author: this.organization
-      }))
+      })
     } else {
-      samples.push(this.one({
+      judgement = this.one({
         model: 'tradle.Confirmation',
         author: this.organization
-      }))
+      })
     }
   } else {
-    samples.push(this.one({
+    judgement = this.one({
       model: models['tradle.ApplicationDenial'],
       author: this.organization
-    }))
+    })
   }
+
+  judgement.value.forms = formStubs
+
+  const samples = [app]
+    .concat(formResources)
+    .concat(submitted)
+    .concat(judgement)
+    .reduce((all, sample) => {
+      // console.log(sample.sideEffects.map(s => s[TYPE]))
+      return all.concat(sample.value)
+        .concat(sample.sideEffects || [])
+    }, [])
+    .concat(verifications)
 
   samples.forEach(resource => {
     const model = models[resource[TYPE]]
@@ -154,16 +164,17 @@ Samples.prototype.verification = function ({ forResource }) {
 
 Samples.prototype.user = function (opts={}) {
   const {
+    products=getProducts(this.models),
     author=customFakers.hash()
   } = opts
 
   const { models } = this
   let samples = []
-  const products = this.products.slice()
+
   for (let i = 0; i < Math.min(3, products.length); i++) {
     let product = randomElement(products)
     samples = samples.concat(this.application({ author, product }))
-    products.splice(products.indexOf(product), 0)
+    products.splice(products.indexOf(product), 1)
   }
 
   return samples
@@ -297,4 +308,29 @@ function repeat (n, fn) {
 function defaultExtension (faker) {
   faker.locale = 'en'
   extend(faker, customFakers)
+}
+
+function getProducts (models) {
+  return shuffle(Object.keys(models))
+    .filter(id => {
+      const { properties, subClassOf, forms } = models[id]
+      return id !== 'tradle.Remediation' &&
+        subClassOf === 'tradle.FinancialProduct' &&
+        forms.length &&
+        forms.some(form => {
+          const formProps = models[form].properties
+          return Object.keys(formProps).some(prop => formProps[prop].faker)
+        })
+    })
+    .sort((a, b) => {
+      if (models[a].forms.includes('tradle.Selfie')) {
+        return -1
+      }
+
+      if (models[b].forms.includes('tradle.Selfie')) {
+        return 1
+      }
+
+      return 0
+    })
 }

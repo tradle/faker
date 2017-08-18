@@ -49,7 +49,10 @@ function run (conf) {
 
   const { users } = conf
   const samples = new Array(users).fill(0).reduce((samples) => {
-    const next = gen.user()
+    const next = gen.user({
+      products: ['tradle.WealthManagementAccount']
+    })
+
     return samples.concat(next)
   }, [])
 

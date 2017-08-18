@@ -17,7 +17,7 @@
     "@tradle/merge-models": "tradle/merge-models",
     "@tradle/models": "https://github.com/tradle/models",
     "@tradle/validate-model": "tradle/validate-model",
-    "@tradle/validate-resource": "tradle/validate-resource",
+    "@tradle/validate-resource": "github:tradle/validate-resource",
     "array-shuffle": "^1.0.1",
     "clone": "^2.1.1",
     "dot-prop": "^4.2.0",

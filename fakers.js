@@ -1,6 +1,8 @@
 const crypto = require('crypto')
 const shallowClone = require('xtend')
 const faker = require('faker')
+const { nextFace } = require('./faces')
+const { randomElement } = require('./utils')
 const YEAR_MILLIS = 365 * 24 * 3600 * 1000
 // const currencies = require('@tradle/models')
 //   .models['tradle.Money']
@@ -8,36 +10,96 @@ const YEAR_MILLIS = 365 * 24 * 3600 * 1000
 
 // const authors = new Array(100).fill(0).map(hash)
 
-module.exports = {
+const fakers = {
   sig: () => crypto.randomBytes(128).toString('base64'),
   hash,
-  // author: () => randomEl(authors)
+  true: () => true,
+  // author: () => randomElement(authors)
   ref,
   tradleModelId: id => id,
   sigPubKey: () => crypto.randomBytes(32).toString('hex'),
   currency: () => '€',
   _virtual: () => ['_link', '_permalink', '_author'],
   timestamp: () => Date.now() - Math.floor(Math.random() * 10 * YEAR_MILLIS),
-  ssn: () => {
-    const area = faker.random.number({ min: 100, max: 665 })
-    const group = faker.random.number({ min: 10, max: 99 })
-    const serial = faker.random.number({ min: 1000, max: 9900 })
-    return `${area}-${group}-${serial}`
+  ssn,
+  face,
+  wealthevent,
+  phoneType: () => randomElement(phoneTypes),
+  randomLetter: () => randomElement(alphabet),
+  currency: () => randomElement(currencies),
+  year: {
+    past: () => {
+      let year = new Date().getFullYear()
+      while (Math.random() < 0.5 && year > 1960) {
+        year--
+      }
+
+      return year
+    }
   }
 }
 
+const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWZYZ'
+const currencies = '$€£'
+const phoneTypes = ['mobile', 'work', 'home']
+
+function wealthevent () {
+  const genEvent = randomElement([
+    boughtStock,
+    soldStock,
+    boughtRealEstate,
+    soldRealEstate,
+    inheritance
+  ])
+
+  return genEvent()
+}
+
+function money () {
+  const amount = 100000 + Math.random() * 1000000 | 0
+  return `${fakers.currency()}${amount}`
+}
+
+function inheritance () {
+  return `inherited ${money()}`
+}
+
+function boughtRealEstate () {
+  return `bought a house for ${money()}`
+}
+
+function soldRealEstate () {
+  return `sold a house for ${money()}`
+}
+
+function boughtStock () {
+  return `bought ${movedStock()}`
+}
+
+function soldStock () {
+  return `sold ${movedStock()}`
+}
+
+function movedStock () {
+  const shares = Math.random() * 1000000 | 0
+  return `${shares} shares of ${faker.company.companyName()}`
+}
+
+function face () {
+  const url = nextFace()
+  return { url }
+}
+
 function ssn () {
-  return
+  const area = faker.random.number({ min: 100, max: 665 })
+  const group = faker.random.number({ min: 10, max: 99 })
+  const serial = faker.random.number({ min: 1000, max: 9900 })
+  return `${area}-${group}-${serial}`
 }
 
 function hash () {
   return crypto.randomBytes(32).toString('hex')
 }
-
-// function randomEl (arr) {
-//   const idx = Math.floor(Math.random() * authors.length)
-//   return authors[idx]
-// }
 
 function ref (type, property) {
   const link = hash()
@@ -63,3 +125,5 @@ function ref (type, property) {
 function randomInt (n) {
   return Math.floor(Math.random() * n)
 }
+
+module.exports = fakers

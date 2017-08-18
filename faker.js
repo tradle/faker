@@ -14,19 +14,32 @@ module.exports = fakeResource
 
 function fakeResource ({ models, model }) {
   const type = model.id
-  const data = {}
-  if (type) data[TYPE] = type
+  const value = {}
+  if (type) value[TYPE] = type
 
-  const props = model.required || Object.keys(model.properties)
+  const { properties } = model
+  const props = model.required || Object.keys(properties)
+  let sideEffects = []
   props.forEach(propertyName => {
-    data[propertyName] = fakeValue({
+    const property = properties[propertyName]
+    const result = fakeValue({
       models,
       model,
       propertyName
     })
+
+    value[propertyName] = result.value
+    if (property.type === 'object' || property.type === 'array') {
+      if (result.sideEffects) {
+        sideEffects = sideEffects.concat(result.sideEffects || [])
+      }
+    }
   })
 
-  return data
+  return {
+    value,
+    sideEffects
+  }
 }
 
 function newFakeData ({ models, model }) {
@@ -37,17 +50,25 @@ function newFakeData ({ models, model }) {
   if (!model) throw new Error('model not found')
 
   const type = model.id
-  const data = {}
-  if (type) data[TYPE] = type
+  const value = {}
+  if (type) value[TYPE] = type
 
   const props = model.required || Object.keys(model.properties)
+  let sideEffects = []
   props.forEach(propertyName => {
-    if (propertyName.charAt(0) === '_' || propertyName === 'from' || propertyName === 'to') return
-
-    data[propertyName] = fakeValue({ models, model, propertyName })
+    if (propertyName[0] !== '_') {
+      const result = fakeValue({ models, model, propertyName })
+      value[propertyName] = result.value
+      if (result.sideEffects) {
+        sideEffects = sideEffects.concat(result.sideEffects)
+      }
+    }
   })
 
-  return data
+  return {
+    value,
+    sideEffects
+  }
 }
 
 function fakeValue ({ models, model, propertyName }) {
@@ -56,79 +77,111 @@ function fakeValue ({ models, model, propertyName }) {
   const range = models[ref]
   const { type } = prop
 
-  if (prop.faker && (type !== 'object' && type !== 'array')) {
+  let value
+  let sideEffects
+  if (prop.faker) {
     if (typeof prop.faker === 'object') {
       const fType = firstProp(prop.faker)
       const args = prop.faker[fType]
-      return dotProp.get(faker, fType).apply(null, args)
+      value = dotProp.get(faker, fType).apply(null, args)
+    } else {
+      const gen = dotProp.get(faker, prop.faker)
+      value = gen()
     }
+  } else {
+    switch (type) {
+      case 'string':
+        value = randomString()
+        break
+      case 'number':
+        value = Math.random() * 100 | 0
+        break
+      case 'date':
+        value = Date.now()
+        break
+      case 'boolean':
+        value = Math.random() < 0.5
+        break
+      case 'enum':
+      case 'object':
+        if (!ref) {
+          value = {}
+          break
+        }
 
-    const gen = dotProp.get(faker, prop.faker)
-    return gen()
-  }
+        if (range.inlined) {
+          let inlineResult = newFakeData({ models, model: range })
+          value = inlineResult.value
+          sideEffects = inlineResult.sideEffects
+          break
+        }
 
-  switch (type) {
-    case 'string':
-      return randomString()
-    case 'number':
-      return Math.random() * 100 | 0
-    case 'date':
-      return Date.now()
-    case 'enum':
-    case 'object':
-      if (!ref) return {}
+        let result = fakeResourceStub({
+          models,
+          model: range
+        })
 
-      if (range.inlined) {
-        return newFakeData({ models, model: range })
-      }
+        value = result.value
+        sideEffects = result.sideEffects
+        break
+      case 'array':
+        if (!ref) {
+          value = []
+          break
+        }
 
-      return fakeResourceStub({
-        models,
-        model: range
-      })
-    case 'boolean':
-      return Math.random() < 0.5
-    case 'array':
-      if (!ref) return []
+        if (range.inlined) {
+          value = [
+            newFakeData({ models, model: range })
+          ]
 
-      if (range.inlined) {
-        return [
-          newFakeData({ models, model: range })
-        ]
-      }
+          break
+        }
 
-      return [
-        fakeResourceStub({
+        let stubResult = fakeResourceStub({
           models,
           model: models[ref]
         })
-      ]
-      // const resource = fakeValue({ models, model })
-      // let value
-      // if (ref && !prop.inlined) {
-      //   value = buildId({ model, resource })
-      // } else {
-      //   value = resource
-      // }
 
-      // return [value]
-    default:
-      throw new Error(`unknown property type: ${type} for property ${propertyName}`)
+        value = [
+          stubResult.value
+        ]
+
+        sideEffects = stubResult.sideEffects
+        break
+
+        // const resource = fakeValue({ models, model })
+        // let value
+        // if (ref && !prop.inlined) {
+        //   value = buildId({ model, resource })
+        // } else {
+        //   value = resource
+        // }
+
+        // return [value]
+      default:
+        throw new Error(`unknown property type: ${type} for property ${propertyName}`)
+    }
+  }
+
+  return {
+    value,
+    sideEffects
   }
 }
 
 function fakeResourceStub ({ models, model }) {
   const modelId = model.id
+  let value
+  let sideEffects
   if (modelId === 'tradle.Money') {
-    return {
+    value = {
       // [TYPE]: 'tradle.Money',
       "value": "6000",
       "currency": "€"
     }
-  }
-
-  if (modelId === 'tradle.Phone') {
-    return {
+  } else if (modelId === 'tradle.Phone') {
+    value = {
       // [TYPE]: 'tradle.Phone',
       phoneType: fakeResourceStub({
         models,
@@ -136,30 +189,35 @@ function fakeResourceStub ({ models, model }) {
       }),
       number: '3456789'
     }
-  }
-
-  if (model.subClassOf === 'tradle.Enum') {
+  } else if (model.subClassOf === 'tradle.Enum') {
     if (Array.isArray(model.enum)) {
       const { id, title } = randomElement(model.enum)
-      return {
+      value = {
         id: `${modelId}_${id}`,
         title
       }
     }
 
     const link = randomString()
-    return {
+    value = {
       id: `${modelId}_${link}_${link}`,
       title: `${modelId} fake title`
     }
+  } else {
+    const resource = fakeResource({ models, model })
+    value = buildResource.stub({
+      models,
+      model,
+      resource: resource.value
+    })
+
+    sideEffects = (resource.sideEffects || []).concat(resource.value)
   }
 
-  const resource = fakeResource({ models, model })
-  return buildResource.stub({
-    models,
-    model,
-    resource
-  })
+  return {
+    value,
+    sideEffects
+  }
 }
 
 function randomString () {
