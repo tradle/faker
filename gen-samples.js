@@ -163,13 +163,14 @@ Samples.prototype.verification = function ({ forResource }) {
 }
 
 Samples.prototype.user = function (opts={}) {
-  const {
+  let {
     products=getProducts(this.models),
     author=customFakers.hash()
   } = opts
 
   const { models } = this
   let samples = []
+  products = products.slice()
 
   for (let i = 0; i < Math.min(3, products.length); i++) {
     let product = randomElement(products)

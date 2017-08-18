@@ -1,6 +1,6 @@
 module.exports = {
   output: './samples.json',
   extension: './sample-extension.js',
-  users: 2,
+  users: 20,
   products: ['tradle.WealthManagementAccount']
 }

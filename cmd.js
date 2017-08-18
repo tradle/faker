@@ -48,13 +48,14 @@ function run (conf) {
   })
 
   const { users } = conf
-  const samples = new Array(users).fill(0).reduce((samples) => {
-    const next = gen.user({
+  const samples = new Array(users).fill(0).map(() => {
+    return gen.user({
       products: conf.products
       // products: ['tradle.WealthManagementAccount']
     })
-
-    return samples.concat(next)
+  })
+  .reduce((all, some) => {
+    return all.concat(some)
   }, [])
 
   fs.writeFileSync(path.resolve(conf.output), prettify(samples))
