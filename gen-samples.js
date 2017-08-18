@@ -84,7 +84,7 @@ Samples.prototype.application = function ({ author, product }) {
     author
   })
 
-  app.product = product
+  app.value.product = product
 
   const formResources = forms.map(form => {
     const model = models[form]
