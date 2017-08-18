@@ -86,6 +86,17 @@ Samples.prototype.application = function ({ author, product }) {
 
   app.value.product = product
 
+  const formRequests = forms.map(form => {
+    const req = this.one({
+      model: models['tradle.FormRequest'],
+      author: this.organization
+    })
+
+    req.value.product = product
+    req.value.form = form
+    return req
+  })
+
   const formResources = forms.map(form => {
     const model = models[form]
     return this.one({ model, author })
@@ -130,6 +141,7 @@ Samples.prototype.application = function ({ author, product }) {
   judgement.value.forms = formStubs
 
   const samples = [app]
+    .concat(formRequests)
     .concat(formResources)
     .concat(submitted)
     .concat(judgement)
