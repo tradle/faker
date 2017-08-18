@@ -18,7 +18,6 @@ const fakers = {
   ref,
   tradleModelId: id => id,
   sigPubKey: () => crypto.randomBytes(32).toString('hex'),
-  currency: () => '€',
   _virtual: () => ['_link', '_permalink', '_author'],
   timestamp: () => Date.now() - Math.floor(Math.random() * 10 * YEAR_MILLIS),
   ssn,
