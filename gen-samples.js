@@ -51,37 +51,39 @@ function Samples ({
   }
 }
 
-Samples.prototype.one = function ({ model, author }) {
+Samples.prototype.one = function ({ model, author, profile }) {
   const { models } = this
   if (typeof model === 'string') {
     model = models[model]
   }
 
   const sample = createFake({ models, model })
-  const { value } = sample
+  const resource = sample.value
   fixVirtual({
     models,
     model,
-    resource: sample.value,
+    resource,
     props: { _author: author}
   })
 
-  validateResource({
-    models,
-    model,
-    resource: value
-  })
+  if (profile) {
+    const _authorTitle = `${profile.firstName} ${profile.lastName}`
+    fixName({ resource, profile })
+    setVirtual(resource, { _authorTitle })
+  }
 
+  validateResource({ models, model, resource })
   return sample
 }
 
-Samples.prototype.application = function ({ author, product }) {
+Samples.prototype.application = function ({ author, profile, product }) {
   const { models } = this
   const productModel = models[product]
   const forms = productModel.forms.concat(productModel.additionalForms || [])
   const app = this.one({
     model: models['tradle.ProductApplication'],
-    author
+    author,
+    profile
   })
 
   app.value.product = product
@@ -99,7 +101,7 @@ Samples.prototype.application = function ({ author, product }) {
 
   const formResources = forms.map(form => {
     const model = models[form]
-    return this.one({ model, author })
+    return this.one({ model, author, profile })
   })
 
   const verifications = formResources.map(res => {
@@ -197,10 +199,14 @@ Samples.prototype.user = function (opts={}) {
   const { models } = this
   let samples = []
   products = products.slice()
+  const profile = {
+    firstName: faker.name.firstName(),
+    lastName: faker.name.lastName()
+  }
 
   for (let i = 0; i < Math.min(3, products.length); i++) {
     let product = randomElement(products)
-    samples = samples.concat(this.application({ author, product }))
+    samples = samples.concat(this.application({ author, product, profile }))
     products.splice(products.indexOf(product), 1)
   }
 
@@ -378,4 +384,32 @@ function fixVirtual ({ models, model, resource, props={} }) {
 
   setVirtual(resource, virtual)
   return resource
+}
+
+function fixName ({ resource, profile }) {
+  const { firstName, lastName } = profile
+  switch (resource[TYPE]) {
+  case 'tradle.Name':
+  case 'tradle.Visa':
+  case 'tradle.Passport':
+  case 'tradle.PassportVerification':
+  case 'tradle.OnfidoApplicant':
+    resource.givenName = firstName
+    resource.surname = lastName
+    break
+  case 'tradle.BasicContactInfo':
+  case 'tradle.PersonalInfo':
+  case 'tradle.ApplicationForEResidency':
+  case 'tradle.ApplicantInfo':
+  case 'tradle.CustomerEntity':
+  case 'tradle.IndividualOwners':
+  case 'tradle.KeyStaff':
+  case 'tradle.MyEmployeePass':
+  case 'tradle.PhoneBill':
+  case 'tradle.BetaTesterContactInfo':
+  case 'tradle.UtilityBillVerification':
+    resource.firstName = firstName
+    resource.lastName = lastName
+    break
+  }
 }
