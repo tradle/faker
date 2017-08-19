@@ -15,7 +15,7 @@
     "@tradle/custom-models": "https://github.com/tradle/custom-models",
     "@tradle/engine": "^4.10.0",
     "@tradle/merge-models": "tradle/merge-models",
-    "@tradle/models": "https://github.com/tradle/models",
+    "@tradle/models": "github:tradle/models",
     "@tradle/validate-model": "tradle/validate-model",
     "@tradle/validate-resource": "github:tradle/validate-resource",
     "array-shuffle": "^1.0.1",

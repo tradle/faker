@@ -11,7 +11,7 @@ const { randomElement } = require('./utils')
 
 module.exports = fakeResource
 
-function fakeResource ({ models, model }) {
+function fakeResource ({ models, model, exclude=[] }) {
   const type = model.id
   const value = {}
   if (type) value[TYPE] = type
@@ -19,7 +19,10 @@ function fakeResource ({ models, model }) {
   const { properties } = model
   const props = Object.keys(properties)
     .filter(propertyName => {
-      if (propertyName in value) return
+      if (propertyName in value || exclude.includes(propertyName)) {
+        return
+      }
+
       if (propertyName === PREVLINK || propertyName === PERMALINK) {
         return
       }
@@ -99,7 +102,6 @@ function fakeValue ({ models, model, propertyName }) {
       const args = prop.sample[fType]
       value = dotProp.get(faker, fType).apply(null, args)
     } else {
-      debugger
       const gen = dotProp.get(faker, prop.sample)
       value = gen()
     }

@@ -51,13 +51,13 @@ function Samples ({
   }
 }
 
-Samples.prototype.one = function ({ model, author, profile }) {
+Samples.prototype.one = function ({ model, author, profile, exclude }) {
   const { models } = this
   if (typeof model === 'string') {
     model = models[model]
   }
 
-  const sample = createFake({ models, model })
+  const sample = createFake({ models, model, exclude })
   const resource = sample.value
   fixVirtual({
     models,
@@ -91,7 +91,8 @@ Samples.prototype.application = function ({ author, profile, product }) {
   const formRequests = forms.map(form => {
     const req = this.one({
       model: models['tradle.FormRequest'],
-      author: this.organization
+      author: this.organization,
+      exclude: ['prefill']
     })
 
     req.value.product = product
@@ -230,18 +231,6 @@ function normalizeModel ({ models, model }) {
   model.required = uniq(model.required)
   deleteProperties(model, ['_cut', '_n', '_q'])
 
-  if (!inlined && model.subClassOf !== 'tradle.Enum') {
-    properties._s.sample = 'sig'
-    properties._r.sample = 'hash'
-    properties._p.sample = 'hash'
-    properties._z.sample = 'hash'
-    properties._link.sample = 'hash'
-    properties._permalink.sample = 'hash'
-    properties._sigPubKey.sample = 'sigPubKey'
-    properties._time.minimum = Date.now() - 60 * 365 * 24 * 60 * 1000
-    properties._time.maximum = Date.now() + 60 * 365 * 24 * 60 * 1000
-  }
-
   Object.keys(properties).forEach(name => {
     const property = properties[name]
     if (property.type !== 'object' &&
@@ -287,7 +276,7 @@ function normalizeModel ({ models, model }) {
     if (this.path[this.path.length - 1] === 'type' && val === 'date')  {
       this.parent.update(shallowClone(this.parent.node, {
         type: 'date',
-        faker: 'timestamp'
+        faker: 'timestamp.recent'
         // faker: 'date.past'
       }))
 

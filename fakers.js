@@ -10,6 +10,15 @@ const YEAR_MILLIS = 365 * 24 * 3600 * 1000
 
 // const authors = new Array(100).fill(0).map(hash)
 
+const timestamp = (function () {
+  const types = {}
+  Object.keys(faker.date).forEach(type => {
+    types[type] = (...args) => faker.date[type](...args).getTime()
+  })
+
+  return types
+}())
+
 const fakers = {
   sig: () => crypto.randomBytes(128).toString('base64'),
   hash,
@@ -19,7 +28,7 @@ const fakers = {
   tradleModelId: id => id,
   sigPubKey: () => crypto.randomBytes(32).toString('hex'),
   _virtual: () => ['_link', '_permalink', '_author'],
-  timestamp: () => Date.now() - Math.floor(Math.random() * 10 * YEAR_MILLIS),
+  timestamp,
   ssn,
   face,
   wealthevent,
