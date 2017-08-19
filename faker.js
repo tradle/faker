@@ -1,14 +1,13 @@
 const crypto = require('crypto')
 const extend = require('xtend/mutable')
+const omit = require('object.omit')
 const dotProp = require('dot-prop')
 const faker = require('faker')
 const buildResource = require('@tradle/build-resource')
-const fakers = require('./fakers')
+const { isInlinedProperty } = require('@tradle/validate-resource').utils
+const { TYPE, SIG, PREVLINK, PERMALINK } = require('@tradle/constants')
+const BaseObjectModel = require('@tradle/models').models['tradle.Object']
 const { randomElement } = require('./utils')
-
-extend(faker, fakers)
-
-const { TYPE, SIG } = require('@tradle/constants')
 
 module.exports = fakeResource
 
@@ -18,7 +17,22 @@ function fakeResource ({ models, model }) {
   if (type) value[TYPE] = type
 
   const { properties } = model
-  const props = model.required || Object.keys(properties)
+  const props = Object.keys(properties)
+    .filter(propertyName => {
+      if (propertyName in value) return
+      if (propertyName === PREVLINK || propertyName === PERMALINK) {
+        return
+      }
+
+      const property = properties[propertyName]
+      if (property.type === 'array' &&
+        !isInlinedProperty({ property, models })) {
+        return
+      }
+
+      return true
+    })
+
   let sideEffects = []
   props.forEach(propertyName => {
     const property = properties[propertyName]
@@ -79,13 +93,14 @@ function fakeValue ({ models, model, propertyName }) {
 
   let value
   let sideEffects
-  if (prop.faker) {
-    if (typeof prop.faker === 'object') {
-      const fType = firstProp(prop.faker)
-      const args = prop.faker[fType]
+  if (prop.sample) {
+    if (typeof prop.sample === 'object') {
+      const fType = firstProp(prop.sample)
+      const args = prop.sample[fType]
       value = dotProp.get(faker, fType).apply(null, args)
     } else {
-      const gen = dotProp.get(faker, prop.faker)
+      debugger
+      const gen = dotProp.get(faker, prop.sample)
       value = gen()
     }
   } else {

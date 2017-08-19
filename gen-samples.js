@@ -2,10 +2,12 @@
 const debug = require('debug')(require('./package.json').name)
 const crypto = require('crypto')
 const traverse = require('traverse')
+const faker = require('faker')
 const uniq = require('uniq')
 const typeforce = require('typeforce')
 const extend = require('xtend/mutable')
 const shallowClone = require('xtend')
+const deepExtend = require('deep-extend')
 const clone = require('clone')
 const pick = require('object.pick')
 const shuffle = require('array-shuffle')
@@ -21,6 +23,9 @@ const customFakers = require('./fakers')
 const { randomElement } = require('./utils')
 const BaseObjectModel = baseModels['tradle.Object']
 const { TYPE } = require('@tradle/constants')
+const VERIFICATION = 'tradle.Verification'
+
+defaultExtension(faker)
 
 module.exports = Samples
 
@@ -52,20 +57,15 @@ Samples.prototype.one = function ({ model, author }) {
     model = models[model]
   }
 
-  const sample = createFake({
+  const sample = createFake({ models, model })
+  const { value } = sample
+  fixVirtual({
     models,
     model,
-    signed: true
+    resource: sample.value,
+    props: { _author: author}
   })
 
-  const { value } = sample
-  const virtual = {
-    _link: value._link,
-    _permalink: value._link,
-    _author: author
-  }
-
-  setVirtual(value, virtual)
   validateResource({
     models,
     model,
@@ -162,6 +162,20 @@ Samples.prototype.application = function ({ author, product }) {
 
 Samples.prototype.verification = function ({ forResource }) {
   const { models } = this
+  const model = models[VERIFICATION]
+  const verification = this._verification({ forResource })
+  fixVirtual({
+    models,
+    model,
+    resource: verification,
+    props: { _author: this.organization }
+  })
+
+  return verification
+}
+
+Samples.prototype._verification = function ({ forResource }) {
+  const { models } = this
   const author = this.organization
   if (forResource[TYPE] === 'tradle.PhotoID') {
     if (Math.random() < 0.5) {
@@ -202,7 +216,7 @@ function normalizeModel ({ models, model }) {
     )
 
     model.required = getRequired(model)
-    properties._t.faker = {
+    properties._t.sample = {
       tradleModelId: [id]
     }
   }
@@ -211,13 +225,13 @@ function normalizeModel ({ models, model }) {
   deleteProperties(model, ['_cut', '_n', '_q'])
 
   if (!inlined && model.subClassOf !== 'tradle.Enum') {
-    properties._s.faker = 'sig'
-    properties._r.faker = 'hash'
-    properties._p.faker = 'hash'
-    properties._z.faker = 'hash'
-    properties._link.faker = 'hash'
-    properties._permalink.faker = 'hash'
-    properties._sigPubKey.faker = 'sigPubKey'
+    properties._s.sample = 'sig'
+    properties._r.sample = 'hash'
+    properties._p.sample = 'hash'
+    properties._z.sample = 'hash'
+    properties._link.sample = 'hash'
+    properties._permalink.sample = 'hash'
+    properties._sigPubKey.sample = 'sigPubKey'
     properties._time.minimum = Date.now() - 60 * 365 * 24 * 60 * 1000
     properties._time.maximum = Date.now() + 60 * 365 * 24 * 60 * 1000
   }
@@ -257,7 +271,7 @@ function normalizeModel ({ models, model }) {
         }
       }
     } else {
-      property.faker = {
+      property.sample = {
         ref: [ref, clone(property)]
       }
     }
@@ -320,7 +334,7 @@ function repeat (n, fn) {
 
 function defaultExtension (faker) {
   faker.locale = 'en'
-  extend(faker, customFakers)
+  deepExtend(faker, customFakers)
 }
 
 function getProducts (models) {
@@ -332,7 +346,7 @@ function getProducts (models) {
         forms.length &&
         forms.some(form => {
           const formProps = models[form].properties
-          return Object.keys(formProps).some(prop => formProps[prop].faker)
+          return Object.keys(formProps).some(prop => formProps[prop].sample)
         })
     })
     .sort((a, b) => {
@@ -346,4 +360,22 @@ function getProducts (models) {
 
       return 0
     })
+}
+
+function fixVirtual ({ models, model, resource, props={} }) {
+  const { _link } = resource
+  const _displayName = buildResource.title({
+    models,
+    model,
+    resource
+  }) || model.title
+
+  const virtual = extend({
+    _link,
+    _permalink: _link,
+    _displayName
+  }, props)
+
+  setVirtual(resource, virtual)
+  return resource
 }
