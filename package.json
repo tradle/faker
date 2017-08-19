@@ -1,12 +1,12 @@
 {
-  "name": "@tradle/faker",
+  "name": "@tradle/gen-samples",
   "version": "1.0.0",
-  "description": "generate fake data for tradle models",
+  "description": "generate sample data for tradle models",
   "main": "index.js",
   "bin": {
     "tradle-samples": "./cmd.js"
   },
-  "repository": "https://github.com/tradle/faker",
+  "repository": "https://github.com/tradle/gen-samples",
   "author": "mvayngrib",
   "license": "MIT",
   "dependencies": {
