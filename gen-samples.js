@@ -214,17 +214,21 @@ Samples.prototype.user = function (opts={}) {
 
   const { models } = this
   let samples = []
-  products = products.slice()
+  // products = products.slice()
   const profile = {
     firstName: faker.name.firstName(),
     lastName: faker.name.lastName()
   }
 
-  for (let i = 0; i < Math.min(3, products.length); i++) {
-    let product = randomElement(products)
+  products.forEach(product => {
     samples = samples.concat(this.application({ author, product, profile }))
-    products.splice(products.indexOf(product), 1)
-  }
+  })
+
+  // for (let i = 0; i < Math.min(3, products.length); i++) {
+  //   let product = randomElement(products)
+  //   samples = samples.concat(this.application({ author, product, profile }))
+  //   products.splice(products.indexOf(product), 1)
+  // }
 
   return samples
 }
