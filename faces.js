@@ -1,6 +1,6 @@
 const path = require('path')
 const fs = require('fs')
-const FACE_DIR = './lfw-data-uris'
+const FACE_DIR = path.join(__dirname, 'lfw-data-uris')
 
 const nextFace = (function () {
   const faces = fs.readdirSync(FACE_DIR)
