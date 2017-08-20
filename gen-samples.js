@@ -268,19 +268,7 @@ function normalizeModel ({ models, model }) {
     const ref = getRef(property)
     if (!ref) return // console.log('locally defined', id, name)
 
-    if (isInlinedProperty({ property, models })) {
-      if (ref === 'tradle.Model') {
-        return
-      }
-
-      // properties[name] = toJSONSchema({ models, model: models[ref], schemas })
-      if (property.type === 'array') {
-        properties[name] = {
-          type: 'array',
-          items: properties[name]
-        }
-      }
-    } else {
+    if (!isInlinedProperty({ property, models })) {
       property.sample = {
         ref: [ref, clone(property)]
       }

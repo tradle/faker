@@ -149,7 +149,7 @@ function fakeValue ({ models, model, propertyName }) {
 
         if (range.inlined) {
           value = [
-            newFakeData({ models, model: range })
+            newFakeData({ models, model: range }).value
           ]
 
           break
