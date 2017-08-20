@@ -59,11 +59,14 @@ Samples.prototype.one = function ({ model, author, profile, exclude }) {
 
   const sample = createFake({ models, model, exclude })
   const resource = sample.value
+  const props = {}
+  if (author) props._author = author
+
   fixVirtual({
     models,
     model,
     resource,
-    props: { _author: author}
+    props
   })
 
   if (profile) {
@@ -166,7 +169,13 @@ Samples.prototype.application = function ({ author, profile, product }) {
 Samples.prototype.verification = function ({ forResource }) {
   const { models } = this
   const model = models[VERIFICATION]
-  const verification = this._verification({ forResource })
+  const verification = this.one({
+    model: models['tradle.Object']
+  }).value
+
+  const more = this._verification({ forResource })
+  extend(verification, more)
+
   fixVirtual({
     models,
     model,
