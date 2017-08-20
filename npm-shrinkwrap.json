@@ -17,18 +17,6 @@
       "from": "@tradle/constants@>=2.1.0 <3.0.0",
       "resolved": "https://registry.npmjs.org/@tradle/constants/-/constants-2.1.0.tgz"
     },
-    "@tradle/custom-models": {
-      "version": "4.10.10",
-      "from": "git+https://github.com/tradle/custom-models.git",
-      "resolved": "git+https://github.com/tradle/custom-models.git#59292976c6e41ee949cf952747165aa1ce7f577f",
-      "dependencies": {
-        "@tradle/models": {
-          "version": "4.10.10",
-          "from": "tradle/models",
-          "resolved": "git://github.com/tradle/models.git#6abaff3a3350c296bdb264759a338d68e47d35f4"
-        }
-      }
-    },
     "@tradle/engine": {
       "version": "4.10.0",
       "from": "@tradle/engine@>=4.10.0 <5.0.0",
@@ -38,11 +26,6 @@
       "version": "1.0.0",
       "from": "tradle/merge-models",
       "resolved": "git://github.com/tradle/merge-models.git#d7a79908d5964b0be2c67742e7a4858f6a05ad5d"
-    },
-    "@tradle/models": {
-      "version": "4.10.10",
-      "from": "tradle/models",
-      "resolved": "git://github.com/tradle/models.git#cf9d7bdddc0c557fd4e8005138b43fa5cb0c77ba"
     },
     "@tradle/protocol": {
       "version": "2.3.0",
@@ -471,11 +454,6 @@
       "from": "github-from-package@0.0.0",
       "resolved": "https://registry.npmjs.org/github-from-package/-/github-from-package-0.0.0.tgz"
     },
-    "graceful-fs": {
-      "version": "4.1.11",
-      "from": "graceful-fs@>=4.1.11 <5.0.0",
-      "resolved": "https://registry.npmjs.org/graceful-fs/-/graceful-fs-4.1.11.tgz"
-    },
     "has": {
       "version": "1.0.1",
       "from": "has@>=1.0.0 <2.0.0",
@@ -505,11 +483,6 @@
       "version": "1.0.0",
       "from": "hydration@>=1.0.0 <2.0.0",
       "resolved": "https://registry.npmjs.org/hydration/-/hydration-1.0.0.tgz"
-    },
-    "imurmurhash": {
-      "version": "0.1.4",
-      "from": "imurmurhash@>=0.1.4 <0.2.0",
-      "resolved": "https://registry.npmjs.org/imurmurhash/-/imurmurhash-0.1.4.tgz"
     },
     "inherits": {
       "version": "2.0.3",
@@ -725,7 +698,7 @@
     },
     "minimist": {
       "version": "1.2.0",
-      "from": "minimist@>=1.2.0 <2.0.0",
+      "from": "minimist@>=1.1.3 <2.0.0",
       "resolved": "https://registry.npmjs.org/minimist/-/minimist-1.2.0.tgz"
     },
     "mkdirp": {
@@ -989,11 +962,6 @@
       "from": "simple-get@>=1.4.2 <2.0.0",
       "resolved": "https://registry.npmjs.org/simple-get/-/simple-get-1.4.3.tgz"
     },
-    "slide": {
-      "version": "1.1.6",
-      "from": "slide@>=1.1.5 <2.0.0",
-      "resolved": "https://registry.npmjs.org/slide/-/slide-1.1.6.tgz"
-    },
     "source-map": {
       "version": "0.1.43",
       "from": "source-map@>=0.1.33 <0.2.0",
@@ -1238,11 +1206,6 @@
       "version": "1.0.2",
       "from": "wrappy@>=1.0.0 <2.0.0",
       "resolved": "https://registry.npmjs.org/wrappy/-/wrappy-1.0.2.tgz"
-    },
-    "write-file-atomic": {
-      "version": "1.3.4",
-      "from": "write-file-atomic@>=1.1.4 <2.0.0",
-      "resolved": "https://registry.npmjs.org/write-file-atomic/-/write-file-atomic-1.3.4.tgz"
     },
     "xtend": {
       "version": "4.0.1",
