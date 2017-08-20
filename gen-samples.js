@@ -29,11 +29,17 @@ defaultExtension(faker)
 
 module.exports = Samples
 
-function Samples ({
-  organization=crypto.randomBytes(32).toString('hex'),
-  models={},
-  products
-}) {
+function Samples (opts) {
+  if (!(this instanceof Samples)) {
+    return new Samples(opts)
+  }
+
+  let {
+    organization=crypto.randomBytes(32).toString('hex'),
+    models={},
+    products
+  } = opts
+
   this.organization = organization
   this.models = models = mergeModels()
     .add(baseModels)
