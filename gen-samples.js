@@ -160,7 +160,7 @@ Samples.prototype.application = function ({ author, profile, product }) {
     .reduce((all, sample) => {
       // console.log(sample.sideEffects.map(s => s[TYPE]))
       return all.concat(sample.value)
-        .concat(sample.sideEffects || [])
+        // .concat(sample.sideEffects || [])
     }, [])
     .concat(verifications)
 
