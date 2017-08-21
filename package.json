@@ -1,6 +1,6 @@
 {
   "name": "@tradle/gen-samples",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "generate sample data for tradle models",
   "main": "index.js",
   "bin": {
