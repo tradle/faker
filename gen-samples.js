@@ -41,11 +41,13 @@ function Samples (opts) {
   } = opts
 
   this.organization = organization
-  this.models = models = mergeModels()
+  models = mergeModels()
     .add(baseModels)
     .add(customModels)
     .add(models)
     .get()
+
+  this.models = models = clone(models)
 
   this.products = products || getProducts(models)
 
