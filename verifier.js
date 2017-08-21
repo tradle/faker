@@ -3,9 +3,9 @@ const shallowClone = require('xtend')
 const buildResource = require('@tradle/build-resource')
 const { setVirtual } = buildResource
 const { TYPE, SIG } = require('@tradle/constants')
-const onfidoSample = require('./onfido-verification')
-const visualSample = require('./visual-verification')
-const blinkIDSample = require('./blinkid-verification')
+const onfidoSample = require('./verification/onfido')
+const visualSample = require('./verification/visual')
+const blinkIDSample = require('./verification/blinkid')
 const YEAR_MILLIS = 365 * 24 * 3600 * 1000
 const VERIFICATION = 'tradle.Verification'
 
