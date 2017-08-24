@@ -6,6 +6,7 @@ const co = require('co')
 const mkdirp = require('mkdirp')
 const dir = process.argv[2] || './lfw'
 const out = process.argv[3] || './lfw-data-uris'
+const MAX = 1000
 
 const importPerson = co.wrap(function* (dir) {
   const stat = yield fs.stat(dir)
@@ -26,6 +27,8 @@ const importPerson = co.wrap(function* (dir) {
 
 const loadPeople = co.wrap(function* (dir) {
   const dirs = fs.readdirSync(dir)
+    .slice(0, MAX)
+
   const results = yield dirs.map(function (personDir) {
     return importPerson(path.join(dir, personDir))
   })
