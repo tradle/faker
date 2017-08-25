@@ -3,8 +3,13 @@ const extend = require('xtend/mutable')
 const omit = require('object.omit')
 const dotProp = require('dot-prop')
 const faker = require('faker')
+const tradleUtils  = require('@tradle/engine').utils
 const buildResource = require('@tradle/build-resource')
-const { isInlinedProperty } = require('@tradle/validate-resource').utils
+const {
+  isInlinedProperty,
+  getRef,
+  isInstantiable
+} = require('@tradle/validate-resource').utils
 const { TYPE, SIG, PREVLINK, PERMALINK } = require('@tradle/constants')
 const BaseObjectModel = require('@tradle/models').models['tradle.Object']
 const { randomElement } = require('./utils')
@@ -28,9 +33,17 @@ function fakeResource ({ models, model, exclude=[] }) {
       }
 
       const property = properties[propertyName]
-      if (property.type === 'array' &&
-        !isInlinedProperty({ property, models })) {
-        return
+      if (property.type === 'array') {
+        if (isInlinedProperty({ property, models })) {
+          return true
+        }
+
+        if (property.items && property.items.backlink) {
+          return false
+        }
+
+        const range = getRef(property)
+        return isInstantiable(range)
       }
 
       return true
@@ -38,6 +51,8 @@ function fakeResource ({ models, model, exclude=[] }) {
 
   let sideEffects = []
   props.forEach(propertyName => {
+    if (propertyName === '_virtual') return
+
     const property = properties[propertyName]
     const result = fakeValue({
       models,
@@ -46,12 +61,19 @@ function fakeResource ({ models, model, exclude=[] }) {
     })
 
     value[propertyName] = result.value
+    if (property.virtual) {
+      buildResource.setVirtual(value, {
+        [propertyName]: result.value
+      })
+    }
+
     if (property.type === 'object' || property.type === 'array') {
-      if (result.sideEffects) {
-        sideEffects = sideEffects.concat(result.sideEffects || [])
-      }
+      sideEffects = sideEffects.concat(result.sideEffects || [])
     }
   })
+
+  value._link = tradleUtils.hexLink(buildResource.omitVirtual(value))
+  value._permalink = value._link
 
   return {
     value,
@@ -73,12 +95,12 @@ function newFakeData ({ models, model }) {
   const props = model.required || Object.keys(model.properties)
   let sideEffects = []
   props.forEach(propertyName => {
-    if (propertyName[0] !== '_') {
-      const result = fakeValue({ models, model, propertyName })
-      value[propertyName] = result.value
-      if (result.sideEffects) {
-        sideEffects = sideEffects.concat(result.sideEffects)
-      }
+    if (propertyName[0] === '_') return
+
+    const result = fakeValue({ models, model, propertyName })
+    value[propertyName] = result.value
+    if (result.sideEffects) {
+      sideEffects = sideEffects.concat(result.sideEffects)
     }
   })
 
@@ -89,6 +111,7 @@ function newFakeData ({ models, model }) {
 }
 
 function fakeValue ({ models, model, propertyName }) {
+  if (propertyName === 'policyHolder') debugger
   const prop = model.properties[propertyName]
   const ref = prop.ref || (prop.items && prop.items.ref)
   const range = models[ref]
@@ -121,7 +144,7 @@ function fakeValue ({ models, model, propertyName }) {
         break
       case 'enum':
       case 'object':
-        if (!ref) {
+        if (!(ref && isInstantiable(range))) {
           value = {}
           break
         }
@@ -142,7 +165,7 @@ function fakeValue ({ models, model, propertyName }) {
         sideEffects = result.sideEffects
         break
       case 'array':
-        if (!ref) {
+        if (!(ref && isInstantiable(range))) {
           value = []
           break
         }
@@ -209,16 +232,13 @@ function fakeResourceStub ({ models, model }) {
   } else if (model.subClassOf === 'tradle.Enum') {
     if (Array.isArray(model.enum)) {
       const { id, title } = randomElement(model.enum)
+      value = `${modelId}_${id}`
+    } else {
+      const link = randomString()
       value = {
-        id: `${modelId}_${id}`,
-        title
+        id: `${modelId}_${link}_${link}`,
+        title: `${modelId} fake title`
       }
-    }
-
-    const link = randomString()
-    value = {
-      id: `${modelId}_${link}_${link}`,
-      title: `${modelId} fake title`
     }
   } else {
     const resource = fakeResource({ models, model })

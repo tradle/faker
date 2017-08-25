@@ -32,7 +32,9 @@ const fakers = {
   ssn,
   face,
   wealthevent,
-  phoneType: () => randomElement(phoneTypes),
+  phone: {
+    phoneType: () => randomElement(phoneTypes)
+  },
   randomLetter: () => randomElement(alphabet),
   currency: () => randomElement(currencies),
   year: {
