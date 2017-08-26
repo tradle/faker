@@ -232,7 +232,10 @@ function fakeResourceStub ({ models, model }) {
   } else if (model.subClassOf === 'tradle.Enum') {
     if (Array.isArray(model.enum)) {
       const { id, title } = randomElement(model.enum)
-      value = `${modelId}_${id}`
+      value = {
+        id: `${modelId}_${id}`,
+        title
+      }
     } else {
       const link = randomString()
       value = {
