@@ -42,8 +42,9 @@ function fakeResource ({ models, model, exclude=[] }) {
           return false
         }
 
-        const range = getRef(property)
-        return isInstantiable(range)
+        const ref = getRef(property)
+        const refModel = models[ref]
+        return !refModel || isInstantiable(refModel)
       }
 
       return true
@@ -143,6 +144,8 @@ function fakeValue ({ models, model, propertyName }) {
         value = Math.random() < 0.5
         break
       case 'enum':
+        value = randomElement(property.oneOf)
+        break
       case 'object':
         if (!(ref && isInstantiable(range))) {
           value = {}
