@@ -1,3 +1,5 @@
+const fs = require('fs')
+const path = require('path')
 const extend = require('xtend/mutable')
 const uniq = require('uniq')
 const shallowClone = require('xtend')
@@ -24,6 +26,7 @@ module.exports = {
   getRequired,
   getProperties,
   deleteProperties,
+  iterateImages
 }
 
 function randomElement (arr) {
@@ -99,4 +102,20 @@ function deleteProperties (model, properties) {
 
   model.required = model.required.filter(name => !properties.includes(name))
   return model
+}
+
+function iterateImages (dir) {
+  const images = fs.readdirSync(dir)
+    .map(file => path.join(dir, file))
+
+  let idx = 0
+  return function () {
+    const { dataUri } = require(path.resolve(images[idx]))
+    idx++
+    if (idx === images.length) {
+      idx = 0
+    }
+
+    return dataUri
+  }
 }

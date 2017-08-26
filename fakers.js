@@ -1,8 +1,12 @@
+const path = require('path')
 const crypto = require('crypto')
 const shallowClone = require('xtend')
 const faker = require('faker')
-const { nextFace } = require('./faces')
-const { randomElement } = require('./utils')
+const { TYPE } = require('@tradle/constants')
+const { randomElement, iterateImages } = require('./utils')
+const nextPhotoId = iterateImages(path.join(__dirname, './photo-ids'))
+const nextFace = iterateImages(path.join(__dirname, './lfw-data-uris'))
+
 const YEAR_MILLIS = 365 * 24 * 3600 * 1000
 // const currencies = require('@tradle/models')
 //   .models['tradle.Money']
@@ -46,6 +50,9 @@ const fakers = {
 
       return year
     }
+  },
+  scan: {
+    photoId
   }
 }
 
@@ -97,6 +104,11 @@ function movedStock () {
 
 function face () {
   const url = nextFace()
+  return { url }
+}
+
+function photoId () {
+  const url = nextPhotoId()
   return { url }
 }
 
