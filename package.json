@@ -15,7 +15,7 @@
     "@tradle/engine": "^4.10.0",
     "@tradle/merge-models": "^2.0.0",
     "@tradle/validate-model": "^2.0.1",
-    "@tradle/validate-resource": "^2.4.0",
+    "@tradle/validate-resource": "^2.5.0",
     "array-shuffle": "^1.0.1",
     "clone": "^2.1.1",
     "dot-prop": "^4.2.0",

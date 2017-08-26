@@ -112,7 +112,6 @@ function newFakeData ({ models, model }) {
 }
 
 function fakeValue ({ models, model, propertyName }) {
-  if (propertyName === 'policyHolder') debugger
   const prop = model.properties[propertyName]
   const ref = prop.ref || (prop.items && prop.items.ref)
   const range = models[ref]
@@ -147,7 +146,7 @@ function fakeValue ({ models, model, propertyName }) {
         value = randomElement(property.oneOf)
         break
       case 'object':
-        if (!(ref && isInstantiable(range))) {
+        if (!canFakeObjectValue(range)) {
           value = {}
           break
         }
@@ -168,7 +167,7 @@ function fakeValue ({ models, model, propertyName }) {
         sideEffects = result.sideEffects
         break
       case 'array':
-        if (!(ref && isInstantiable(range))) {
+        if (!canFakeObjectValue(range)) {
           value = []
           break
         }
@@ -271,4 +270,11 @@ function firstProp (obj) {
   for (let key in obj) {
     return key
   }
+}
+
+function canFakeObjectValue (model) {
+  if (!model) return false
+  if (model.subClassOf === 'tradle.Enum') return true
+
+  return isInstantiable(model)
 }
