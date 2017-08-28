@@ -57,7 +57,7 @@ function normalizeModel ({ models, model }) {
     if (this.path[this.path.length - 1] === 'type' && val === 'date')  {
       this.parent.update(shallowClone(this.parent.node, {
         type: 'date',
-        faker: 'timestamp.recent'
+        sample: 'timestamp.recent'
         // faker: 'date.past'
       }))
 
