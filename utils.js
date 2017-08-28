@@ -56,14 +56,23 @@ function normalizeModel ({ models, model }) {
   traverse(properties).forEach(function (val) {
     if (val.sample) return
 
-    if (this.path[this.path.length - 1] === 'type' && val === 'date')  {
-      this.parent.update(shallowClone(this.parent.node, {
-        type: 'date',
-        sample: 'timestamp.recent'
-        // faker: 'date.past'
-      }))
+    if (this.path[this.path.length - 1] !== 'type') {
+      return
+    }
 
-      // set date value for faker on this prop
+    let sample
+    switch (val) {
+    case 'date':
+      sample = 'timestamp.recent'
+      break
+    case 'boolean':
+      sample = 'random.boolean'
+      break
+    }
+
+    // set date value for faker on this prop
+    if (sample) {
+      this.parent.update(shallowClone(this.parent.node, { sample }))
     }
   })
 
