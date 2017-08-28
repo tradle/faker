@@ -54,6 +54,8 @@ function normalizeModel ({ models, model }) {
 
   deleteProperties(model, ['_cut', '_n', '_q'])
   traverse(properties).forEach(function (val) {
+    if (val.sample) return
+
     if (this.path[this.path.length - 1] === 'type' && val === 'date')  {
       this.parent.update(shallowClone(this.parent.node, {
         type: 'date',
