@@ -15,6 +15,7 @@ const YEAR_MILLIS = 365 * 24 * 3600 * 1000
 // const authors = new Array(100).fill(0).map(hash)
 
 const timestamp = (function () {
+  // copies data.x from built in faker.js date fakers
   const types = {}
   Object.keys(faker.date).forEach(type => {
     types[type] = (...args) => faker.date[type](...args).getTime()
