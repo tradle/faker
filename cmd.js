@@ -1,4 +1,4 @@
-#!/usr/bin/env
+#!/usr/bin/env node
 
 const fs = require('fs')
 const path = require('path')
@@ -20,7 +20,8 @@ const Gen = require('./').samples
 const BaseObjectModel = baseModels['tradle.Object']
 const { TYPE } = require('@tradle/constants')
 const SCHEMAS = {}
-const conf = require(path.resolve(process.argv[2]))
+const resolve = (...args) => path.resolve(process.cwd(), ...args)
+const conf = require(resolve(process.argv[2]))
 
 run(conf)
 
@@ -35,11 +36,11 @@ function run (conf) {
 
   console.log('using conf:\n', prettify(conf))
   if (typeof conf.models === 'string') {
-    conf.models = require(path.resolve(conf.models))
+    conf.models = require(resolve(conf.models))
   }
 
   if (conf.extension) {
-    const extension = require(path.resolve(conf.extension))
+    const extension = require(resolve(conf.extension))
     extension(faker)
   }
 
@@ -58,7 +59,7 @@ function run (conf) {
     return all.concat(some)
   }, [])
 
-  fs.writeFileSync(path.resolve(conf.output), prettify(samples))
+  fs.writeFileSync(resolve(conf.output), prettify(samples))
 }
 
 function printUsage () {
