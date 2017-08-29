@@ -33,6 +33,7 @@ function fakeResource ({ models, model, exclude=[] }) {
       }
 
       const property = properties[propertyName]
+      if (property.displaysAs) return
       if (property.type === 'array') {
         if (isInlinedProperty({ property, models })) {
           return true
