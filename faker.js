@@ -74,8 +74,10 @@ function fakeResource ({ models, model, exclude=[] }) {
     }
   })
 
-  value._link = tradleUtils.hexLink(buildResource.omitVirtual(value))
-  value._permalink = value._link
+  if (value[SIG]) {
+    value._link = tradleUtils.hexLink(buildResource.omitVirtual(value))
+    value._permalink = value._link
+  }
 
   return {
     value,
