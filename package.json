@@ -10,14 +10,13 @@
   "author": "mvayngrib",
   "license": "MIT",
   "dependencies": {
-    "@tradle/build-resource": "^2.2.0",
+    "@tradle/build-resource": "^2.9.1",
     "@tradle/constants": "^2.1.0",
     "@tradle/custom-models": "github:tradle/custom-models",
-    "@tradle/engine": "^4.10.0",
     "@tradle/merge-models": "^2.0.0",
     "@tradle/models": "github:tradle/models",
-    "@tradle/validate-model": "^2.0.1",
-    "@tradle/validate-resource": "^2.5.0",
+    "@tradle/validate-model": "^2.1.1",
+    "@tradle/validate-resource": "^2.8.0",
     "array-shuffle": "^1.0.1",
     "clone": "^2.1.1",
     "dot-prop": "^4.2.0",
@@ -30,6 +29,7 @@
   },
   "devDependencies": {
     "@tradle/custom-models": "github:tradle/custom-models",
+    "@tradle/engine": "^4.10.0",
     "@tradle/models": "github:tradle/models",
     "data-uri": "^0.0.3",
     "eslint": "^4.4.1",
@@ -38,6 +38,7 @@
   },
   "peerDependencies": {
     "@tradle/custom-models": "github:tradle/custom-models",
+    "@tradle/engine": ">=4.10.0 <6",
     "@tradle/models": "github:tradle/models"
   },
   "scripts": {
