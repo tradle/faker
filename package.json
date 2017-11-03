@@ -12,9 +12,7 @@
   "dependencies": {
     "@tradle/build-resource": "^2.9.1",
     "@tradle/constants": "^2.1.0",
-    "@tradle/custom-models": "github:tradle/custom-models",
     "@tradle/merge-models": "^2.0.0",
-    "@tradle/models": "github:tradle/models",
     "@tradle/validate-model": "^2.1.1",
     "@tradle/validate-resource": "^2.8.0",
     "array-shuffle": "^1.0.1",
@@ -37,6 +35,7 @@
     "promisify": "^0.0.3"
   },
   "peerDependencies": {
+    "@tradle/models": "github:tradle/models",
     "@tradle/custom-models": "github:tradle/custom-models",
     "@tradle/engine": ">=4.10.0 <6",
     "@tradle/models": "github:tradle/models"
