@@ -47,7 +47,7 @@ function normalizeModel ({ models, model }) {
     }
   }
 
-  model.required = uniq(model.required)
+  model.required = model.required ? uniq(model.required) : []
   if (model.id !== 'tradle.Message') {
     deleteProperties(model, ['from', 'to'])
   }
