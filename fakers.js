@@ -27,6 +27,7 @@ const timestamp = (function () {
 const fakers = {
   sig: () => crypto.randomBytes(128).toString('base64'),
   hash,
+  link: hash,
   true: () => true,
   // author: () => randomElement(authors)
   ref,

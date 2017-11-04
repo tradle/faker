@@ -3,6 +3,8 @@ const debug = require('debug')(require('./package.json').name)
 const crypto = require('crypto')
 const faker = require('faker')
 const typeforce = require('typeforce')
+const bindAll = require('bindall')
+const { TYPE, SIG } = require('@tradle/constants')
 const validateResource = require('@tradle/validate-resource')
 const buildResource = require('@tradle/build-resource')
 const { getRef, isInlinedProperty, setVirtual } = validateResource.utils
@@ -26,7 +28,7 @@ const {
   getProperties,
   deleteProperties,
 } = require('./utils')
-const { TYPE } = require('@tradle/constants')
+
 const VERIFICATION = 'tradle.Verification'
 
 defaultExtension(faker)
@@ -37,6 +39,8 @@ function Samples (opts) {
   if (!(this instanceof Samples)) {
     return new Samples(opts)
   }
+
+  bindAll(this)
 
   let {
     organization=crypto.randomBytes(32).toString('hex'),
@@ -94,13 +98,18 @@ Samples.prototype.application = function ({ author, profile, product }) {
   const { models } = this
   const productModel = models[product]
   const forms = productModel.forms.concat(productModel.additionalForms || [])
-  const app = this.one({
-    model: models['tradle.ProductApplication'],
+  const appBuilder = buildResource({
+    models,
+    model: 'tradle.Application'
+  })
+
+  const productReq = this.one({
+    model: models['tradle.ProductRequest'],
     author,
     profile
   })
 
-  app.value.product = product
+  productReq.value.product = product
 
   const formRequests = forms.map(form => {
     const req = this.one({
@@ -123,45 +132,45 @@ Samples.prototype.application = function ({ author, profile, product }) {
     return this.verification({ forResource: res.value })
   })
 
-  const formStubs = formResources.map(res => {
-    return buildResource.stub({ models, resource: res.value })
+  const approved = Math.random() < 0.5
+  const dateEvaluated = randomDaysAgo()
+  const dateCompleted = randomDaysAgo(dateEvaluated)
+  const application = this._signed({
+    [TYPE]: 'tradle.Application',
+    forms: formResources.map(res => res.value),
+    dateCompleted,
+    dateEvaluated,
+    dateModified: dateEvaluated,
+    status: approved ? 'approved' : 'denied',
+    verificationsIssued: verifications.map(verification => {
+      return {
+        item: verification.document,
+        verification: this._stub(verification)
+      }
+    })
   })
-
-  const submitted = this.one({
-    model: models['tradle.ApplicationSubmitted'],
-    author: this.organization
-  })
-
-  submitted.value.forms = formStubs
 
   const myProductModel = models[product.replace('.', 'My.')]
+  const judgementType = approved ? 'tradle.ApplicationApproval' : 'tradle.ApplicationDenial'
   let judgement
-  if (Math.random() < 0.5) {
-    if (myProductModel) {
-      judgement = this.one({
-        model: myProductModel,
-        author: this.organization
-      })
-    } else {
-      judgement = this.one({
-        model: 'tradle.Confirmation',
-        author: this.organization
+  if (approved && !myProductModel) {
+    console.warn(`missing MyProduct model for ${product}`)
+  } else {
+    judgement = {
+      value: this._signed({
+        [TYPE]: judgementType,
+        message: `Your application for a ${product} was ${application.status}`,
+        application
       })
     }
-  } else {
-    judgement = this.one({
-      model: models['tradle.ApplicationDenial'],
-      author: this.organization
-    })
   }
 
-  judgement.value.forms = formStubs
-
-  const samples = [app]
+  const samples = [productReq]
     .concat(formRequests)
     .concat(formResources)
-    .concat(submitted)
-    .concat(judgement)
+    // .concat(submitted || [])
+    .concat({ value: application })
+    .concat(judgement || [])
     .reduce((all, sample) => {
       // console.log(sample.sideEffects.map(s => s[TYPE]))
       return all
@@ -176,6 +185,31 @@ Samples.prototype.application = function ({ author, profile, product }) {
   })
 
   return samples
+}
+
+Samples.prototype._stub = function (resource) {
+  return buildResource.stub({
+    models: this.models,
+    resource
+  })
+}
+
+Samples.prototype._signed = function (props) {
+  const resource = buildResource({
+    models: this.models,
+    model: props[TYPE],
+  })
+  .set(props)
+  .setVirtual({
+    _time: randomDaysAgo(Date.now() - 365 * 24 * 60 * 60000),
+    _link: props._link || customFakers.link(),
+    _permalink: props._permalink || customFakers.link(),
+    _author: props._author || this.organization
+  })
+  .toJSON()
+
+  resource[SIG] = customFakers.sig()
+  return resource
 }
 
 Samples.prototype.verification = function ({ forResource }) {
@@ -317,4 +351,8 @@ function fixName ({ resource, profile }) {
   default:
     break
   }
+}
+
+function randomDaysAgo (from=Date.now()) {
+  return from - Math.random() * 365 * 24 * 60 * 60000 | 0
 }

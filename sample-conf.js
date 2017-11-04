@@ -1,6 +1,7 @@
 module.exports = {
-  output: './samples.json',
+  output: '/Users/tenaciousmv/Code/tradle-graphql/example/fixtures.json',
   extension: './sample-extension.js',
-  users: 20,
-  products: ['tradle.WealthManagementAccount', 'tradle.CoverholderApproval']
+  users: 50,
+  products: ['tradle.CurrentAccount']
+  // products: ['tradle.WealthManagementAccount', 'tradle.CoverholderApproval', 'tradle.LifeInsurance']
 }

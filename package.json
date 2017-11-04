@@ -13,9 +13,10 @@
     "@tradle/build-resource": "^2.9.1",
     "@tradle/constants": "^2.1.0",
     "@tradle/merge-models": "^2.0.0",
-    "@tradle/validate-model": "^2.1.1",
-    "@tradle/validate-resource": "^2.8.0",
+    "@tradle/validate-model": "^2.4.2",
+    "@tradle/validate-resource": "^2.12.1",
     "array-shuffle": "^1.0.1",
+    "bindall": "^2.0.1",
     "clone": "^2.1.1",
     "dot-prop": "^4.2.0",
     "faker": "^4.1.0",
@@ -37,8 +38,7 @@
   "peerDependencies": {
     "@tradle/models": "github:tradle/models",
     "@tradle/custom-models": "github:tradle/custom-models",
-    "@tradle/engine": ">=4.10.0 <6",
-    "@tradle/models": "github:tradle/models"
+    "@tradle/engine": ">=4.10.0 <6"
   },
   "scripts": {
     "lint": "eslint --quiet --ignore-path .gitignore .",
