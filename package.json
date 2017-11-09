@@ -36,8 +36,8 @@
     "promisify": "^0.0.3"
   },
   "peerDependencies": {
-    "@tradle/models": "github:tradle/models",
-    "@tradle/custom-models": "github:tradle/custom-models",
+    "@tradle/models": "*",
+    "@tradle/custom-models": "*",
     "@tradle/engine": ">=4.10.0 <6"
   },
   "scripts": {
