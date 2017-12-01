@@ -13,7 +13,7 @@
     "@tradle/build-resource": "^2.9.1",
     "@tradle/constants": "^2.1.0",
     "@tradle/merge-models": "^2.0.0",
-    "@tradle/validate-model": "^2.4.2",
+    "@tradle/validate-model": "^4.1.0",
     "@tradle/validate-resource": "^2.12.1",
     "array-shuffle": "^1.0.1",
     "bindall": "^2.0.1",
