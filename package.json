@@ -38,7 +38,7 @@
   "peerDependencies": {
     "@tradle/models": "*",
     "@tradle/custom-models": "*",
-    "@tradle/engine": ">=4.10.0 <7"
+    "@tradle/engine": ">=4.10.0 <8"
   },
   "scripts": {
     "lint": "eslint --quiet --ignore-path .gitignore .",
